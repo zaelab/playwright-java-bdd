@@ -4,7 +4,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import zaelab.driver.DriverBase;
 
@@ -28,7 +28,7 @@ public class LoginSteps {
 
     @Then("the user should be logged in successfully")
     public void the_user_should_be_logged_in_successfully() {
-        assertTrue("User should be redirected to inventory page", 
-            DriverBase.getDriver().url().contains("inventory.html"));
+        assertTrue(DriverBase.getDriver().url().contains("inventory.html"), 
+            "User should be redirected to inventory page");
     }
 }

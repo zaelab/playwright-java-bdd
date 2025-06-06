@@ -12,16 +12,23 @@
         <maven.compiler.source>18</maven.compiler.source>
         <maven.compiler.target>18</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <aspectj.version>1.9.19</aspectj.version>
-        <cucumber.version>7.14.0</cucumber.version>
-        <serenity.version>4.0.4</serenity.version>
-        <serenity.maven.version>4.0.4</serenity.maven.version>
-        <serenity.cucumber.version>4.0.4</serenity.cucumber.version>
+        <cucumber.version>7.15.0</cucumber.version>
+        <junit.platform.version>1.10.2</junit.platform.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <aspectj.version>1.9.21</aspectj.version>
+        <allure.version>2.25.0</allure.version>
+        <allure.cucumber.version>2.25.0</allure.cucumber.version>
+        <cucumber.parallel.enabled>false</cucumber.parallel.enabled>
+        <cucumber.parallel.threads>1</cucumber.parallel.threads>
     </properties>
 
     <profiles>
         <profile>
             <id>parallel</id>
+            <properties>
+                <cucumber.parallel.enabled>true</cucumber.parallel.enabled>
+                <cucumber.parallel.threads>2</cucumber.parallel.threads>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -29,19 +36,44 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.2.5</version>
                         <configuration>
-                            <parallel>methods</parallel>
-                            <threadCount>2</threadCount>
-                            <useUnlimitedThreads>false</useUnlimitedThreads>
                             <includes>
                                 <include>**/RunCucumberTest.java</include>
                             </includes>
+                            <argLine>
+                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                            </argLine>
+                            <systemProperties>
+                                <property>
+                                    <name>allure.results.directory</name>
+                                    <value>${project.build.directory}/allure-results</value>
+                                </property>
+                                <property>
+                                    <name>cucumber.execution.parallel.enabled</name>
+                                    <value>${cucumber.parallel.enabled}</value>
+                                </property>
+                                <property>
+                                    <name>cucumber.execution.parallel.config.fixed.parallelism</name>
+                                    <value>${cucumber.parallel.threads}</value>
+                                </property>
+                            </systemProperties>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.aspectj</groupId>
+                                <artifactId>aspectjweaver</artifactId>
+                                <version>${aspectj.version}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
         </profile>
         <profile>
             <id>sequential</id>
+            <properties>
+                <cucumber.parallel.enabled>false</cucumber.parallel.enabled>
+                <cucumber.parallel.threads>1</cucumber.parallel.threads>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -49,11 +81,34 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.2.5</version>
                         <configuration>
-                            <parallel>none</parallel>
                             <includes>
                                 <include>**/RunCucumberTest.java</include>
                             </includes>
+                            <argLine>
+                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                            </argLine>
+                            <systemProperties>
+                                <property>
+                                    <name>allure.results.directory</name>
+                                    <value>${project.build.directory}/allure-results</value>
+                                </property>
+                                <property>
+                                    <name>cucumber.execution.parallel.enabled</name>
+                                    <value>${cucumber.parallel.enabled}</value>
+                                </property>
+                                <property>
+                                    <name>cucumber.execution.parallel.config.fixed.parallelism</name>
+                                    <value>${cucumber.parallel.threads}</value>
+                                </property>
+                            </systemProperties>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.aspectj</groupId>
+                                <artifactId>aspectjweaver</artifactId>
+                                <version>${aspectj.version}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -79,21 +134,37 @@
                     <includes>
                         <include>**/RunCucumberTest.java</include>
                     </includes>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
+                    <systemProperties>
+                        <property>
+                            <name>allure.results.directory</name>
+                            <value>${project.build.directory}/allure-results</value>
+                        </property>
+                        <property>
+                            <name>cucumber.filter.tags</name>
+                            <value>not @ignore</value>
+                        </property>
+                    </systemProperties>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
-                <groupId>net.serenity-bdd.maven.plugins</groupId>
-                <artifactId>serenity-maven-plugin</artifactId>
-                <version>${serenity.maven.version}</version>
-                <executions>
-                    <execution>
-                        <id>serenity-reports</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>aggregate</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.12.0</version>
+                <configuration>
+                    <reportVersion>${allure.version}</reportVersion>
+                    <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+                    <reportDirectory>${project.build.directory}/allure-report</reportDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -113,34 +184,35 @@
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit</artifactId>
+            <artifactId>cucumber-junit-platform-engine</artifactId>
             <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- Serenity Dependencies -->
+        <!-- JUnit 5 Dependencies -->
         <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-core</artifactId>
-            <version>${serenity.version}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-cucumber</artifactId>
-            <version>${serenity.cucumber.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-junit</artifactId>
-            <version>${serenity.version}</version>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>${junit.platform.version}</version>
+            <scope>test</scope>
         </dependency>
 
-        <!-- JUnit Dependencies -->
+        <!-- Allure Dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>${allure.cucumber.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>${allure.version}</version>
         </dependency>
     </dependencies>
 </project>

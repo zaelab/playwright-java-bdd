@@ -6,7 +6,9 @@ import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import zaelab.driver.DriverBase;
 import com.microsoft.playwright.Page;
-import net.serenitybdd.core.Serenity;
+import io.qameta.allure.Allure;
+
+import java.io.ByteArrayInputStream;
 
 public class TestHooks {
 
@@ -24,12 +26,12 @@ public class TestHooks {
         }
     }
 
-    // @After
+    @After
     public void afterTest(Scenario scenario) {
         System.out.println("[TestHooks] After scenario: '" + scenario.getName() + "' on thread: " + Thread.currentThread().getId());
-        if (scenario.isFailed()) {
-            captureScreenshot(scenario, "Scenario_Failure");
-        }
+        // if (scenario.isFailed()) {
+        //     captureScreenshot(scenario, "Scenario_Failure");
+        // }
         DriverBase.cleanup();
     }
 
@@ -37,12 +39,15 @@ public class TestHooks {
         try {
             byte[] screenshot = DriverBase.getDriver().screenshot(new Page.ScreenshotOptions().setFullPage(true));
             String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-            java.nio.file.Path screenshotPath = java.nio.file.Paths.get("target/serenity-screenshots", 
-                scenario.getName() + "_" + screenshotName + "_" + timestamp + ".png");
-            java.nio.file.Files.createDirectories(screenshotPath.getParent());
-            java.nio.file.Files.write(screenshotPath, screenshot);
-            Serenity.recordReportData().withTitle("Screenshot: " + screenshotName)
-                    .downloadable().fromFile(screenshotPath);
+            String screenshotTitle = scenario.getName() + "_" + screenshotName + "_" + timestamp;
+            
+            // Attach screenshot to Allure report
+            Allure.addAttachment(
+                screenshotTitle,
+                "image/png",
+                new ByteArrayInputStream(screenshot),
+                "png"
+            );
         } catch (Exception e) {
             System.err.println("Failed to capture screenshot: " + e.getMessage());
         }

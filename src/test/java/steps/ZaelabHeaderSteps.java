@@ -1,10 +1,9 @@
 package steps;
 
-
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import zaelab.driver.DriverBase;
 
@@ -16,9 +15,8 @@ public class ZaelabHeaderSteps {
 
     @Then("logo should be visible")
     public void logo_should_be_visible() {
-        assertTrue(DriverBase.getDriver().locator("//a[@aria-label='home']/img").isVisible());
+        assertTrue(DriverBase.getDriver().locator("//a[@aria-label='home']/img").isVisible(),
+            "Logo should be visible on the landing page");
     }
-
-    
 }
 
