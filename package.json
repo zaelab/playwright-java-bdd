@@ -1,0 +1,11 @@
+{
+  "name": "playwright-java",
+  "version": "1.0.0",
+  "description": "Playwright Java Test Automation",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.50.0"
+  }
+} 
