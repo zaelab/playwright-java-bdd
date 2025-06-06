@@ -1,20 +1,20 @@
 package runners;
 
-import io.cucumber.testng.AbstractTestNGCucumberTests;
-import io.cucumber.testng.CucumberOptions;
+import io.cucumber.junit.CucumberOptions;
+import net.serenitybdd.cucumber.CucumberWithSerenity;
+import org.junit.runner.RunWith;
 
+@RunWith(CucumberWithSerenity.class)
 @CucumberOptions(
     features = "src/test/resources/features",
-    glue = {"steps", "hooks", "listeners"},
+    glue = {"steps", "hooks"},
     plugin = {
-        "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm",
         "pretty",
-        "summary",
-        "timeline:target/cucumber-reports/timeline",
         "html:target/cucumber-reports/cucumber-pretty.html",
-        "json:target/cucumber-reports/cucumber.json"
+        "json:target/cucumber-reports/cucumber.json",
+        "timeline:target/cucumber-reports/timeline"
     },
-    tags = ""
+    monochrome = true,
+    tags = "not @ignore"
 )
-public class RunCucumberTest extends AbstractTestNGCucumberTests {
-} 
+public class RunCucumberTest {} 

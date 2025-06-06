@@ -2,17 +2,13 @@ package steps;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
-import zaelab.driver.DriverBase;
 import io.cucumber.java.en.Then;
 
-import static org.testng.Assert.*;
+import static org.junit.Assert.assertTrue;
+
+import zaelab.driver.DriverBase;
 
 public class LoginSteps {
-
-    // private Playwright playwright;
-    // private Browser browser;
-    // private BrowserContext context;
-
 
     @Given("the user is on the login page")
     public void the_user_is_on_the_login_page() {
@@ -32,6 +28,7 @@ public class LoginSteps {
 
     @Then("the user should be logged in successfully")
     public void the_user_should_be_logged_in_successfully() {
-        assertTrue(DriverBase.getDriver().url().contains("inventory.html"));
+        assertTrue("User should be redirected to inventory page", 
+            DriverBase.getDriver().url().contains("inventory.html"));
     }
 }

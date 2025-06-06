@@ -1,7 +1,7 @@
 # Playwright Java Cucumber Project
 
 ## Prerequisites
-- Java 11 or higher
+- Java 18 or higher
 - Maven 3.6 or higher
 - Node.js 14 or higher (for Playwright)
 - Git
@@ -24,85 +24,116 @@
    ```
 
 ## Running Tests
-- **Sequential Mode:**
-  ```bash
-  mvn clean test -P sequential
-  ```
 
-- **Parallel Mode:**
-  ```bash
-  mvn clean test -P parallel
-  ```
+### Sequential Execution
+To run tests sequentially (one at a time):
+```bash
+mvn clean verify -P sequential
+```
 
-## Generating Reports
-- **Allure Report:**
-  - Raw results are stored in: `allure-results/`
-    - Contains test execution data, screenshots, and other attachments
-    - Required for generating Allure reports
-    - Can be safely deleted before a new test run
-  - To view the report:
-    ```bash
-    mvn allure:serve
-    ```
-  - To generate a static report:
-    ```bash
-    mvn allure:report
-    ```
-    The static report will be generated in: `target/site/allure-maven-plugin`
+### Parallel Execution
+To run tests in parallel (2 threads by default):
+```bash
+mvn clean verify -P parallel
+```
 
-- **Cucumber HTML Report:**
-  After running tests, the report is generated at `target/cucumber-reports/cucumber-pretty.html`.
+### Running Specific Tests
+To run tests with specific tags:
+```bash
+# Run tests with @smoke tag
+mvn clean verify -Dcucumber.filter.tags="@smoke"
 
-- **Cucumber JSON Report:**
-  The JSON report is generated at `target/cucumber-reports/cucumber.json`.
+# Run tests excluding @ignore tag
+mvn clean verify -Dcucumber.filter.tags="not @ignore"
+
+# Run tests with multiple tags
+mvn clean verify -Dcucumber.filter.tags="@smoke and not @ignore"
+```
+
+## Test Reports
+
+### Serenity Reports
+Serenity generates comprehensive test reports that include:
+- Test execution results
+- Step-by-step test execution details
+- Screenshots of failed steps
+- Test duration and statistics
+- Requirements coverage
+
+To view the Serenity report:
+1. After test execution, navigate to: `target/site/serenity/index.html`
+2. Open the file in your web browser
+
+### Cucumber Reports
+The project generates two types of Cucumber reports:
+
+1. HTML Report (Pretty Format):
+   - Location: `target/cucumber-reports/cucumber-pretty.html`
+   - Contains detailed step-by-step execution in a readable format
+
+2. JSON Report:
+   - Location: `target/cucumber-reports/cucumber.json`
+   - Can be used to generate additional custom reports
+
+3. Timeline Report:
+   - Location: `target/cucumber-reports/timeline`
+   - Shows test execution timeline and parallel execution details
+
+### Screenshots
+- Failed test screenshots are saved in: `target/serenity-screenshots/`
+- Each screenshot is named with the scenario name and timestamp
+- Screenshots are automatically included in the Serenity report
 
 ## Project Structure
-- `src/main/java/zaelab/driver/DriverBase.java`: Manages browser instances using ThreadLocal for thread safety.
-- `src/test/java/runners/RunCucumberTest.java`: Cucumber runner configuration.
-- `src/test/resources/features/`: Contains Cucumber feature files.
-- `src/test/java/steps/`: Contains step definitions.
-- `src/test/java/hooks/`: Contains hooks for test setup and teardown.
-- `allure-results/`: Contains raw test execution data for Allure reports.
+```
+src/
+├── main/
+│   └── java/
+│       └── zaelab/
+│           ├── driver/
+│           │   └── DriverBase.java    # Browser management
+│           └── utilities/
+│               └── file/
+│                   └── ReadPropertyFile.java
+└── test/
+    ├── java/
+    │   ├── hooks/
+    │   │   └── TestHooks.java        # Test setup and teardown
+    │   ├── runners/
+    │   │   └── RunCucumberTest.java  # Test runner configuration
+    │   └── steps/
+    │       └── LoginSteps.java       # Step definitions
+    └── resources/
+        ├── features/                  # Cucumber feature files
+        └── config.properties          # Configuration file
+```
+
+## Configuration
+- Browser settings can be modified in `src/main/resources/config.properties`
+- Test execution settings can be modified in `pom.xml`
+- Parallel execution settings can be adjusted in the `parallel` profile in `pom.xml`
 
 ## Troubleshooting
-- If you encounter browser-related issues, ensure Playwright browsers are installed correctly.
-- For parallel execution issues, check `junit-platform.properties` and ensure `ThreadLocal` is used for browser management.
-- If Allure reports are not generating, ensure the `allure-results` directory exists and contains test execution data.
+
+### Common Issues
+1. **Browser Installation Issues**
+   - Ensure you have run the Playwright browser installation command
+   - Check your Node.js version is compatible
+
+2. **Test Execution Issues**
+   - Verify Java version is 18 or higher
+   - Check Maven version is 3.6 or higher
+   - Ensure all dependencies are downloaded
+
+3. **Report Generation Issues**
+   - Clean the project: `mvn clean`
+   - Ensure test execution completed successfully
+   - Check write permissions in the target directory
+
+### Getting Help
+- Check the test execution logs in the console output
+- Review the Serenity report for detailed test execution information
+- Check the Cucumber reports for step-by-step execution details
 
 ## License
-This project is licensed under the MIT License.
-
-# Allure Report Usage
-
-## How to View Allure Reports
-
-After running your tests and generating the Allure report, you have two main options to view it:
-
-### 1. Recommended: Use Allure's Built-in Server
-
-Run:
-```bash
-mvn allure:serve
-```
-This will start a local web server and automatically open the report in your browser. This is the most reliable way to view the report locally.
-
-### 2. Use a Simple HTTP Server (for static report)
-If you want to view the static report generated in `target/allure-report`, you must serve it via a local web server. For example:
-```bash
-cd target/allure-report
-python3 -m http.server 8080
-```
-Then open [http://localhost:8080](http://localhost:8080) in your browser.
-
-### 3. Do NOT open index.html directly
-Opening `index.html` directly with `file://` in your browser will not work correctly. The report will show only "Loading..." because modern browsers block AJAX/JavaScript requests for local files due to security restrictions (CORS).
-
-### 4. Sharing the Report
-To share the report, upload the entire `allure-report` directory to a web server or use a static file host (such as GitHub Pages, Netlify, etc.).
-
----
-
-**Summary:**
-- Use `mvn allure:serve` for local viewing.
-- Use a local web server for the static report.
-- Never open `index.html` directly with `file://`. 
+This project is licensed under the MIT License. 
